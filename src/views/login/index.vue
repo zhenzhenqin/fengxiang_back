@@ -21,13 +21,13 @@
           <el-form-item prop="username" class="form-item">
             <div class="input-box">
               <span class="icon">👤</span>
-              <el-input v-model="formData.username" placeholder="请输入用户名" class="input-field" />
+              <el-input v-model="formData.username" placeholder="请输入用户名" class="input-field" @keyup.enter="submitForm(formRef)" />
             </div>
           </el-form-item>
           <el-form-item prop="password" class="form-item">
             <div class="input-box">
               <span class="icon">🔒</span>
-              <el-input v-model="formData.password" type="password" placeholder="请输入密码" class="input-field" />
+              <el-input v-model="formData.password" type="password" placeholder="请输入密码" class="input-field" @keyup.enter="submitForm(formRef)" />
             </div>
           </el-form-item>
           <el-form-item class="form-item">

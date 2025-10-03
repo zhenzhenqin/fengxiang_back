@@ -7,7 +7,7 @@ import { useAuthStore } from '../store/user'
  * 员工管理
  */
 
-// 登录（你原有逻辑基础上，替换sessionStorage为Pinia）
+// 登录
 export const $login = async (data: any) => {
   var response = await $post('/employee/login', data)
   
@@ -33,5 +33,20 @@ export const $login = async (data: any) => {
       message: '登录失败',
       type: 'error',
     })
+  }
+}
+
+//退出登录
+export const $logout = async () => {
+  try {
+    const response = await $post('/employee/logout')
+    if (response.code === 1) {
+      return { code: 1, message: '退出成功' }
+    } else {
+      return { code: 0, message: response.message || '退出失败' }
+    }
+  } catch (error) {
+    console.error('退出登录接口调用失败:', error)
+    return { code: 0, message: '网络错误，退出失败' }
   }
 }

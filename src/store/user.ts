@@ -1,5 +1,5 @@
 // store/user.ts
-import {defineStore} from 'pinia'
+import { defineStore } from 'pinia'
 
 interface AuthState {
   token: string | null
@@ -15,7 +15,7 @@ export const useAuthStore = defineStore('auth', {
   }),
   
   actions: {
-    // 初始化状态 - 在应用启动时调用
+    // 初始化状态
     initialize() {
       this.token = sessionStorage.getItem('token')
       this.username = sessionStorage.getItem('username')
@@ -31,12 +31,18 @@ export const useAuthStore = defineStore('auth', {
       sessionStorage.setItem('username', username)
     },
     
+    // 增强退出登录功能
     logout() {
+      // 清空本地状态
       this.token = null
       this.username = null
       this.isLogin = false
+      
+      // 清空存储
       sessionStorage.removeItem('token')
       sessionStorage.removeItem('username')
+      
+      console.log('用户状态已清除，准备跳转到登录页')
     }
   }
 })
