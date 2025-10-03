@@ -41,25 +41,44 @@ const router = createRouter({
 // 修改：路由守卫从Pinia读取状态（同步无延迟）
 // router/index.ts
 // router/index.ts
+// router/index.ts
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
 
+  // 确保每次路由切换时状态都是最新的
+  const isLogin = authStore.getIsLogin
+  const token = authStore.getToken
+
+  console.log('🛡️ 路由守卫检查:', { 
+    to: to.path, 
+    requiresAuth: to.meta.requiresAuth,
+    isLogin, 
+    hasToken: !!token 
+  })
+
   // 1. 已登录用户访问登录页 → 直接跳首页
-  if (!to.meta.requiresAuth && authStore.isLogin) {
+  if (!to.meta.requiresAuth && isLogin) {
+    console.log('🔀 已登录用户访问登录页，跳转到首页')
     next('/layout/index')
     return
   }
 
-  // 2. 需要授权的路由 → 用Pinia的token判断
+  // 2. 需要授权的路由 → 检查登录状态
   if (to.meta.requiresAuth) {
-    if (authStore.token) {
-      next() // 有Token，直接放行
+    if (token) {
+      console.log('✅ 权限验证通过，放行')
+      next()
     } else {
-      ElMessage.warning('请先登录后再访问！')
+      console.log('❌ 未登录，跳转到登录页')
+      // 只有从内部页面跳转时才显示提示，避免初次访问就弹窗
+      if (from.path !== '/' && from.path !== '') {
+        ElMessage.warning('请先登录后再访问！')
+      }
       next('/')
     }
   } else {
     // 3. 无需授权的路由 → 直接放行
+    console.log('🎯 公开路由，直接放行')
     next()
   }
 })

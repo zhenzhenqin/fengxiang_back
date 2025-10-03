@@ -115,32 +115,36 @@
   </el-dialog>
 </template>
 
+
 <script setup lang="ts">
+
+//引入组件
 import {
   ElContainer, ElHeader, ElAside, ElMain, ElMenu, ElMenuItem,
   ElDropdown, ElDropdownMenu, ElDropdownItem, ElIcon, ElDialog,
   ElForm, ElFormItem, ElInput, ElButton, ElMessage, ElMessageBox
 } from 'element-plus'
+
+//引入图标
 import {
   User, ArrowDown, Lock, SwitchButton as Logout, House, Briefcase, Histogram,
   ShoppingCart, Goods, Menu, UserFilled,
 } from '@element-plus/icons-vue'
-import { reactive, ref, onMounted } from 'vue'
+import { reactive, ref, onMounted, computed } from 'vue' // 新增 computed
 import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
-// 新增导入
 import { $logout } from '../../api/employee'
 import { useAuthStore } from '../../store/user'
 
 const router = useRouter()
-// 新增：获取authStore
 const authStore = useAuthStore()
 
-const currentUsername = ref('')
+// 修改：使用 computed 确保响应式更新
+const currentUsername = computed(() => authStore.getUsername || '管理员')
+
 const isPwdDialogShow = ref(false)
 const pwdFormRef = ref<FormInstance>()
 const pwdForm = reactive({ oldPwd: '', newPwd: '', confirmPwd: '' })
-
 const pwdFormRules = reactive<FormRules>({
   oldPwd: [{ required: true, message: '请输入原密码', trigger: 'blur' }],
   newPwd: [{ required: true, message: '请输入新密码', trigger: 'blur' }],
@@ -150,15 +154,11 @@ const pwdFormRules = reactive<FormRules>({
   ]
 })
 
-onMounted(() => {
-  // 修改：从Pinia store获取用户名
-  currentUsername.value = authStore.username || '管理员'
-})
+// 移除旧的 onMounted，因为现在使用 computed
 
-// 修改：增强退出登录处理
+// 其余代码保持不变...
 const handleLogout = async () => {
   try {
-    // 确认对话框
     await ElMessageBox.confirm(
       '确定要退出登录吗？',
       '退出确认',
@@ -168,38 +168,30 @@ const handleLogout = async () => {
         type: 'warning',
       }
     )
-
+    
     console.log('开始执行退出登录流程...')
-
-    // 1. 调用后端退出接口
+    
     const result = await $logout()
     console.log('退出接口返回:', result)
-
-    // 2. 清除前端状态（无论后端是否成功都要执行）
+    
     authStore.logout()
     console.log('前端状态已清除')
-
-    // 3. 显示成功消息
+    
     ElMessage.success('已退出登录')
-
-    // 4. 跳转到登录页
-    console.log('准备跳转到登录页...')
+    
     router.replace('/').then(() => {
       console.log('跳转成功')
     }).catch(err => {
       console.error('路由跳转失败:', err)
-      // 兜底方案
       window.location.href = '/'
     })
-
+    
   } catch (error) {
     if (error === 'cancel') {
-      // 用户点击取消
       console.log('用户取消退出')
       return
     }
-
-    // 其他错误：仍然要清除前端状态
+    
     console.error('退出过程发生错误:', error)
     authStore.logout()
     ElMessage.warning('已退出本地登录')
@@ -224,8 +216,8 @@ const handlePwdSubmit = async () => {
     ElMessage.success('密码修改成功！请重新登录')
     isPwdDialogShow.value = false
     Object.assign(pwdForm, { oldPwd: '', newPwd: '', confirmPwd: '' })
-  } catch (e) {
-    ElMessage.error('表单验证失败')
+  } catch (e) { 
+    ElMessage.error('表单验证失败') 
   }
 }
 </script>

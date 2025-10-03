@@ -85,9 +85,12 @@ const rules = reactive<FormRules<typeof formData>>({
 })
 
 // 新增：页面挂载后检查Pinia状态（已登录直接跳首页）
+// login.vue 的 onMounted
 onMounted(() => {
-  if (authStore.isLogin) {
-    router.push('/layout/index')
+  // 使用 getter 确保获取最新状态
+  if (authStore.getIsLogin) {
+    console.log('🔐 检测到已登录，自动跳转到首页')
+    router.replace('/layout/index')
   }
 })
 

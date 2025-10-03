@@ -14,12 +14,28 @@ export const useAuthStore = defineStore('auth', {
     isLogin: false
   }),
   
+  // 新增：使用持久化插件或者确保每次获取时都从storage读取
+  getters: {
+    // 确保在getter中也从sessionStorage读取，作为兜底
+    getToken: (state) => state.token || sessionStorage.getItem('token'),
+    getUsername: (state) => state.username || sessionStorage.getItem('username'),
+    getIsLogin: (state) => state.isLogin || !!sessionStorage.getItem('token')
+  },
+  
   actions: {
-    // 初始化状态
+    // 初始化状态 - 从sessionStorage恢复
     initialize() {
-      this.token = sessionStorage.getItem('token')
-      this.username = sessionStorage.getItem('username')
-      this.isLogin = !!this.token
+      const token = sessionStorage.getItem('token')
+      const username = sessionStorage.getItem('username')
+      
+      if (token) {
+        this.token = token
+        this.username = username
+        this.isLogin = true
+        console.log('🔐 从sessionStorage恢复登录状态:', { token: token?.substring(0, 10) + '...', username })
+      } else {
+        console.log('🔐 未找到登录状态，用户未登录')
+      }
     },
     
     // 登录成功
@@ -29,20 +45,17 @@ export const useAuthStore = defineStore('auth', {
       this.isLogin = true
       sessionStorage.setItem('token', token)
       sessionStorage.setItem('username', username)
+      console.log('✅ 登录成功，状态已保存')
     },
     
-    // 增强退出登录功能
+    // 退出登录
     logout() {
-      // 清空本地状态
       this.token = null
       this.username = null
       this.isLogin = false
-      
-      // 清空存储
       sessionStorage.removeItem('token')
       sessionStorage.removeItem('username')
-      
-      console.log('用户状态已清除，准备跳转到登录页')
+      console.log('🚪 退出登录，状态已清除')
     }
   }
 })
