@@ -94,6 +94,8 @@ onMounted(() => {
   }
 })
 
+const loginLoading = ref(false) // 👈 在这里定义
+
 // 修改：表单提交（取消Token循环检查，用Pinia同步状态）
 // login.vue 中的submitForm方法
 const submitForm = async (formEl: FormInstance | undefined) => {
@@ -102,6 +104,10 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   try {
     await formEl.validate()
     console.log('1. 表单验证通过，调用$login')
+
+    // 添加登录中状态
+    const loginLoading = ref(false)
+    loginLoading.value = true
 
     const result = await $login(formData)
     console.log('2. $login返回结果：', result)
@@ -123,10 +129,13 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       })
     } else {
       console.log('3. $login返回code≠1，不跳转')
+      // 这里不需要显示错误消息，因为$login内部已经处理了
     }
   } catch (err) {
     console.error('5. 表单验证失败：', err)
     ElMessage.error('请完善表单信息')
+  } finally {
+    loginLoading.value = false
   }
 }
 
