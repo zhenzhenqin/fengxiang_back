@@ -1,6 +1,6 @@
-import { $post } from '../utils/request'
+// api/employee.ts
+import { $post, $put } from '../utils/request' // 确保导入 $put
 import { ElMessage } from 'element-plus'
-// 新增：导入Pinia Auth Store
 import { useAuthStore } from '../store/user'
 
 /**
@@ -12,14 +12,13 @@ export const $login = async (data: any) => {
   var response = await $post('/employee/login', data)
   
   if (response.code === 1 && response.data.token) {
-    // 新增：调用Pinia同步更新状态（无延迟）
     const authStore = useAuthStore()
     authStore.loginSuccess(
       response.data.token, 
-      response.data.username || data.username // 兼容后端字段
+      response.data.username || data.username,
+      response.data.id
     )
     
-    // 原有欢迎提示不变
     const username = data.username
     ElMessage({
       message: `欢迎${username}进入蜂享自然`,
@@ -28,7 +27,6 @@ export const $login = async (data: any) => {
 
     return { code: 1 }
   } else {
-    // 原有失败提示不变
     ElMessage({
       message: '登录失败',
       type: 'error',
@@ -36,7 +34,7 @@ export const $login = async (data: any) => {
   }
 }
 
-//退出登录
+// 退出登录
 export const $logout = async () => {
   try {
     const response = await $post('/employee/logout')
@@ -48,5 +46,38 @@ export const $logout = async () => {
   } catch (error) {
     console.error('退出登录接口调用失败:', error)
     return { code: 0, message: '网络错误，退出失败' }
+  }
+}
+
+// 新增：修改密码接口
+export const $updatePassword = async (passwordData: {
+  oldPassword: string;
+  newPassword: string;
+}) => {
+  try {
+    // 使用 PUT 请求，路径为 /employee/editPassword
+    const response = await $put('/employee/editPassword', {
+      oldPassword: passwordData.oldPassword,
+      newPassword: passwordData.newPassword
+      // empId 应该由后端从 token 中解析，前端不需要传递
+    })
+    
+    if (response.code === 1) {
+      return { 
+        code: 1, 
+        message: response.message || '密码修改成功' 
+      }
+    } else {
+      return { 
+        code: 0, 
+        message: response.message || '密码修改失败' 
+      }
+    }
+  } catch (error: any) {
+    console.error('修改密码接口调用失败:', error)
+    return { 
+      code: 0, 
+      message: error.response?.data?.message || '网络错误，密码修改失败' 
+    }
   }
 }
