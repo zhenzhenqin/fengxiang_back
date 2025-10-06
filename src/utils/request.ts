@@ -39,23 +39,34 @@ instance.interceptors.response.use(function (response) {
   return Promise.reject(error);
 });
 
-// 原有的get、post等方法保持不变
-export const $get = async (url:string, params:object={}) =>{
-  let {data} = await instance.get(url, {params});
+// 修改：增强请求方法，支持配置参数
+export const $get = async (url: string, params: object = {}, config: object = {}) => {
+  let { data } = await instance.get(url, { params, ...config });
   return data
 }
 
-export const $post = async (url:string, params:object={}) =>{
-  let {data} = await instance.post(url, params);
+export const $post = async (url: string, params: object = {}, config: object = {}) => {
+  let { data } = await instance.post(url, params, config);
   return data
 }
 
-export const $put = async (url:string, params:object={}) =>{
-  let {data} = await instance.put(url, params);
+export const $put = async (url: string, params: object = {}, config: object = {}) => {
+  let { data } = await instance.put(url, params, config);
   return data
 }
 
-export const $delete = async (url:string, params:object={}) =>{
-  let {data} = await instance.delete(url, {params});
+export const $delete = async (url: string, params: object = {}, config: object = {}) => {
+  let { data } = await instance.delete(url, { params, ...config });
+  return data
+}
+
+// 新增：专门用于文件上传的方法
+export const $upload = async (url: string, formData: FormData) => {
+  const config = {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  }
+  let { data } = await instance.post(url, formData, config);
   return data
 }
