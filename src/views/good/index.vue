@@ -97,6 +97,7 @@
           }"
           row-key="id"
           @selection-change="handleSelectionChange"
+          @scroll="handleTableScroll"
         >
           <el-table-column type="selection" width="55" align="center" />
           
@@ -218,20 +219,32 @@
           </el-table-column>
         </el-table>
 
-        <!-- 分页部分 -->
-        <div class="demo-pagination-block">
-          <div class="demonstration">共 {{ total }} 条记录</div>
-          <el-pagination
-            v-model:current-page="pagination.current"
-            v-model:page-size="pagination.size"
-            :page-sizes="[10, 20, 50, 100]"
-            :disabled="false"
-            :background="true"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
+        <!-- 分页和滚动加载状态 -->
+        <div class="data-footer">
+          <!-- 分页部分 -->
+          <div class="demo-pagination-block">
+            <div class="demonstration">共 {{ total }} 条记录</div>
+            <el-pagination
+              v-model:current-page="pagination.current"
+              v-model:page-size="pagination.size"
+              :page-sizes="[5, 10, 20, 50, 100]"
+              :disabled="false"
+              :background="true"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+            />
+          </div>
+
+          <!-- 滚动加载提示 -->
+          <div v-if="scrollLoading" class="scroll-loading">
+            <el-icon class="is-loading"><Loading /></el-icon>
+            <span>正在加载更多数据...</span>
+          </div>
+          <div v-else-if="tableData.length > 0" class="no-more-data">
+            <span>已加载全部数据</span>
+          </div>
         </div>
       </el-card>
     </div>
@@ -341,7 +354,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, nextTick } from 'vue'
+import { reactive, ref, onMounted, nextTick, onUnmounted } from 'vue'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules, type UploadProps } from 'element-plus'
 import {
   Search,
@@ -351,7 +364,8 @@ import {
   Remove,
   Check,
   Delete,
-  Picture
+  Picture,
+  Loading
 } from '@element-plus/icons-vue'
 import { 
   $getGoodList, 
@@ -376,14 +390,20 @@ const searchFormRef = ref<FormInstance>()
 // 分页配置
 const pagination = reactive({
   current: 1,
-  size: 10
+  size: 20
 })
 
 const total = ref(0)
 const loading = ref(false)
+const scrollLoading = ref(false)
 const tableData = ref<any[]>([])
 const selectedRows = ref<any[]>([])
 const categoryList = ref<any[]>([])
+
+// 滚动加载相关
+const hasMore = ref(true)
+const allData = ref<any[]>([]) // 存储所有数据用于滚动加载
+const scrollPageSize = 20 // 每次滚动加载的数据量
 
 // 新增/编辑商品相关
 const addDialogVisible = ref(false)
@@ -453,13 +473,18 @@ const fetchCategoryList = async () => {
   }
 }
 
-// 获取商品列表
-const fetchGoodList = async () => {
-  loading.value = true
+// 获取商品列表 - 支持分页和滚动加载
+const fetchGoodList = async (isScrollLoad = false) => {
+  if (isScrollLoad) {
+    scrollLoading.value = true
+  } else {
+    loading.value = true
+  }
+  
   try {
     const params = {
       page: pagination.current,
-      pageSize: pagination.size,
+      pageSize: isScrollLoad ? scrollPageSize : pagination.size,
       ...(searchForm.name && { name: searchForm.name }),
       ...(searchForm.categoryId && { categoryId: searchForm.categoryId }),
       ...(searchForm.status !== undefined && { status: searchForm.status })
@@ -467,22 +492,78 @@ const fetchGoodList = async () => {
 
     const result = await $getGoodList(params)
     if (result.code === 1) {
-      tableData.value = result.data.records || []
-      total.value = result.data.total || 0
-      console.log('商品列表获取成功:', tableData.value)
+      // 映射分类名称
+      const goodsWithCategoryName = (result.data.records || []).map((item: any) => {
+        const category = categoryList.value.find(cat => cat.id === item.categoryId)
+        return {
+          ...item,
+          categoryName: category ? category.name : '-'
+        }
+      })
+      
+      if (isScrollLoad) {
+        // 滚动加载，追加数据
+        tableData.value = [...tableData.value, ...goodsWithCategoryName]
+        // 检查是否还有更多数据
+        hasMore.value = goodsWithCategoryName.length >= scrollPageSize
+      } else {
+        // 普通分页加载
+        tableData.value = goodsWithCategoryName
+        total.value = result.data.total || 0
+        // 重置滚动加载状态
+        hasMore.value = true
+        allData.value = goodsWithCategoryName
+      }
     } else {
       ElMessage.error(result.message || '获取商品列表失败')
-      tableData.value = []
-      total.value = 0
+      if (!isScrollLoad) {
+        tableData.value = []
+        total.value = 0
+      }
     }
   } catch (error) {
     console.error('获取商品列表失败:', error)
     ElMessage.error('获取商品列表失败')
-    tableData.value = []
-    total.value = 0
+    if (!isScrollLoad) {
+      tableData.value = []
+      total.value = 0
+    }
   } finally {
     loading.value = false
+    scrollLoading.value = false
   }
+}
+
+// 表格滚动事件处理
+const handleTableScroll = (event: any) => {
+  const { scrollTop, scrollHeight, clientHeight } = event.target
+  // 当滚动到底部时加载更多数据
+  if (scrollHeight - scrollTop <= clientHeight + 50 && hasMore.value && !scrollLoading.value) {
+    loadMoreData()
+  }
+}
+
+// 监听窗口滚动事件
+const handleWindowScroll = () => {
+  const scrollTop = document.documentElement.scrollTop || document.body.scrollTop
+  const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight
+  const clientHeight = document.documentElement.clientHeight || document.body.clientHeight
+  
+  // 当滚动到底部时加载更多数据
+  if (scrollHeight - scrollTop <= clientHeight + 100 && hasMore.value && !scrollLoading.value) {
+    loadMoreData()
+  }
+}
+
+
+// 加载更多数据
+const loadMoreData = () => {
+  if (scrollLoading.value || !hasMore.value) return
+  
+  // 使用分页的下一页来加载更多数据
+  const nextPage = Math.floor(tableData.value.length / scrollPageSize) + 1
+  pagination.current = nextPage
+  fetchGoodList(true)
 }
 
 // 搜索
@@ -836,6 +917,12 @@ const handleAddSubmit = async () => {
 onMounted(() => {
   fetchCategoryList()
   fetchGoodList()
+  window.addEventListener('scroll', handleWindowScroll) //监听滚动事件
+})
+
+// 在组件卸载时移除滚动监听
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleWindowScroll)
 })
 </script>
 
@@ -978,20 +1065,54 @@ onMounted(() => {
   gap: 8px;
 }
 
-/* 分页样式 */
-.demo-pagination-block {
+/* 分页和滚动加载样式 */
+.data-footer {
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid #f0f0f0;
+}
+
+.demo-pagination-block {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16px;
 }
 
 .demonstration {
   font-size: 14px;
   color: #606266;
   font-weight: 500;
+}
+
+.scroll-loading,
+.scroll-tip,
+.no-more-data {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  color: #909399;
+  font-size: 14px;
+}
+
+.scroll-loading {
+  color: #409EFF;
+}
+
+.scroll-loading .el-icon {
+  margin-right: 8px;
+}
+
+.scroll-tip {
+  background-color: #f0f9ff;
+  border-radius: 4px;
+  border: 1px solid #e1f3ff;
+}
+
+.no-more-data {
+  background-color: #f5f7fa;
+  border-radius: 4px;
 }
 
 /* 上传组件样式 */

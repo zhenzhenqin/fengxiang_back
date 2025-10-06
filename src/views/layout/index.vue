@@ -42,7 +42,7 @@
     </el-header>
 
     <!-- 2. 主体内容：左侧菜单 + 右侧首页 -->
-    <el-container>
+    <el-container class="main-container">
       <!-- 左侧菜单栏：7个模块 + 统一图标样式 -->
       <el-aside class="app-aside" width="220px">
         <el-menu router class="aside-menu" background-color="#FFF9E6" text-color="#A07852" active-text-color="#614028"
@@ -92,66 +92,62 @@
         </el-menu>
       </el-aside>
 
-      <!-- 右侧首页内容-->
-      <el-main>
+      <!-- 右侧首页内容 - 修改为可滚动 -->
+      <el-main class="main-content">
         <router-view></router-view>
       </el-main>
-
     </el-container>
   </el-container>
 
   <!-- 修改密码弹窗 -->
-  <!-- 修改密码弹窗部分 -->
-<el-dialog 
-  title="修改密码" 
-  v-model="isPwdDialogShow" 
-  width="400px" 
-  center
-  :before-close="handlePwdCancel"
->
-  <el-form 
-    ref="pwdFormRef" 
-    :model="pwdForm" 
-    :rules="pwdFormRules" 
-    label-width="100px" 
-    class="pwd-form"
+  <el-dialog 
+    title="修改密码" 
+    v-model="isPwdDialogShow" 
+    width="400px" 
+    center
+    :before-close="handlePwdCancel"
   >
-    <el-form-item label="原密码" prop="oldPwd">
-      <el-input 
-        type="password" 
-        v-model="pwdForm.oldPwd" 
-        placeholder="请输入原密码"
-        show-password
-      />
-    </el-form-item>
-    <el-form-item label="新密码" prop="newPwd">
-      <el-input 
-        type="password" 
-        v-model="pwdForm.newPwd" 
-        placeholder="请输入新密码"
-        show-password
-      />
-    </el-form-item>
-    <el-form-item label="确认密码" prop="confirmPwd">
-      <el-input 
-        type="password" 
-        v-model="pwdForm.confirmPwd"
-        placeholder="请再次输入新密码"
-        show-password
-      />
-    </el-form-item>
-  </el-form>
-  <template #footer>
-    <el-button @click="handlePwdCancel">取消</el-button>
-    <el-button type="primary" @click="handlePwdSubmit" :loading="false">
-      确认修改
-    </el-button>
-  </template>
-</el-dialog>
+    <el-form 
+      ref="pwdFormRef" 
+      :model="pwdForm" 
+      :rules="pwdFormRules" 
+      label-width="100px" 
+      class="pwd-form"
+    >
+      <el-form-item label="原密码" prop="oldPwd">
+        <el-input 
+          type="password" 
+          v-model="pwdForm.oldPwd" 
+          placeholder="请输入原密码"
+          show-password
+        />
+      </el-form-item>
+      <el-form-item label="新密码" prop="newPwd">
+        <el-input 
+          type="password" 
+          v-model="pwdForm.newPwd" 
+          placeholder="请输入新密码"
+          show-password
+        />
+      </el-form-item>
+      <el-form-item label="确认密码" prop="confirmPwd">
+        <el-input 
+          type="password" 
+          v-model="pwdForm.confirmPwd"
+          placeholder="请再次输入新密码"
+          show-password
+        />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <el-button @click="handlePwdCancel">取消</el-button>
+      <el-button type="primary" @click="handlePwdSubmit" :loading="false">
+        确认修改
+      </el-button>
+    </template>
+  </el-dialog>
 </template>
 
-
-// layout/index.vue 的 script 部分修改
 <script setup lang="ts">
 // 引入组件
 import {
@@ -342,15 +338,15 @@ const handleMenuSelect = (i: string) => console.log('选中菜单：', i)
 </script>
 
 <style scoped>
-/* 1. 整体容器样式不变 */
+/* 1. 整体容器样式 - 修改为允许滚动 */
 .app-container {
   width: 100vw;
   height: 100vh;
   background-color: #FFFDF5;
-  overflow: hidden;
+  /* 移除 overflow: hidden 以允许滚动 */
+  display: flex;
+  flex-direction: column;
 }
-
-/* 新增：禁止全局滚动 */
 
 /* 2. 顶部Header样式不变 */
 .app-header {
@@ -361,7 +357,7 @@ const handleMenuSelect = (i: string) => console.log('选中菜单：', i)
   align-items: center;
   padding: 0 24px;
   height: 60px;
-  /* 固定Header高度，便于计算主体高度 */
+  flex-shrink: 0; /* 防止header被压缩 */
 }
 
 .header-left {
@@ -369,11 +365,6 @@ const handleMenuSelect = (i: string) => console.log('选中菜单：', i)
   align-items: center;
   gap: 12px;
 }
-
-/* .logo-icon {
-  font-size: 28px;
-  color: #FFB800;
-} */
 
 .brand-title {
   font-size: 24px;
@@ -422,17 +413,25 @@ const handleMenuSelect = (i: string) => console.log('选中菜单：', i)
   box-shadow: 0 4px 16px rgba(255, 184, 0, 0.15);
 }
 
-/* 3. 左侧菜单栏样式不变 */
+/* 3. 主容器 - 修改为可滚动 */
+.main-container {
+  flex: 1;
+  height: calc(100vh - 60px);
+  overflow: hidden; /* 外层容器隐藏滚动条 */
+}
+
+/* 4. 左侧菜单栏样式 - 修改高度 */
 .app-aside {
   background-color: #FFF9E6;
   border-right: 1px solid #FFE5B4;
-  height: calc(100vh - 60px);
-  /* 与Header高度匹配，填满剩余高度 */
+  height: 100%;
+  overflow-y: auto; /* 如果菜单项很多，允许菜单滚动 */
 }
 
 .aside-menu {
   border-right: none;
-  height: 100%;
+  height: auto; /* 改为自动高度 */
+  min-height: 100%; /* 确保菜单至少占满整个高度 */
 }
 
 .el-menu-item {
@@ -462,12 +461,28 @@ const handleMenuSelect = (i: string) => console.log('选中菜单：', i)
   background-color: #FFF3D0 !important;
 }
 
-/* 5. 修改密码弹窗样式不变 */
+/* 5. 主内容区域 - 修改为可滚动 */
+.main-content {
+  padding: 0;
+  height: 100%;
+  overflow-y: auto; /* 允许内容区域滚动 */
+  background-color: #f8f9fa; /* 添加背景色，与商品管理页面保持一致 */
+}
+
+/* 6. 修改密码弹窗样式不变 */
 .pwd-form {
   margin-top: 16px;
 }
 
-/* 6. 响应式适配：进一步优化小屏幕 */
+/* 7. Logo图片样式 */
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* 8. 响应式适配 */
 @media (max-width: 1024px) {
   .app-aside {
     width: 64px !important;
@@ -477,11 +492,6 @@ const handleMenuSelect = (i: string) => console.log('选中菜单：', i)
     display: none;
   }
 
-  .home-intro-card {
-    width: 85%;
-  }
-
-  /* 从90%改为85%，更紧凑 */
   .el-menu-item span {
     display: none;
   }
@@ -491,38 +501,5 @@ const handleMenuSelect = (i: string) => console.log('选中菜单：', i)
   .username {
     display: none;
   }
-
-
-
-  /* 从24px改为16px，减少padding */
-  .home-intro-card {
-    width: 92%;
-    padding: 16px;
-    /* 从24px改为16px，更紧凑 */
-    bottom: 16px;
-  }
-
-  .intro-title {
-    font-size: 18px;
-  }
-
-  .intro-desc {
-    font-size: 13px;
-  }
-}
-
-/* 新增：Logo图片样式，放在.header-left下面 */
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-/* Logo图片样式：固定尺寸，避免拉伸 */
-.logo-img {
-  width: 40px;
-  height: 40px;
-  object-fit: contain;
-  border-radius: 4px;
 }
 </style>
