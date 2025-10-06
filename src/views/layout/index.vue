@@ -171,7 +171,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 // 使用 computed 确保响应式更新
-const currentUsername = computed(() => authStore.getUsername || '管理员')
+const currentUsername = computed(() => authStore.getUsername || '-')
 
 const isPwdDialogShow = ref(false)
 const pwdFormRef = ref<FormInstance>()

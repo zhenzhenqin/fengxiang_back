@@ -13,19 +13,19 @@ export const $getCategoryList = async (params: {
       return { 
         code: 1, 
         data: response.data,
-        message: '获取成功'
+        msg: '获取成功'
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '获取分类列表失败' 
+        msg: response.msg || '获取分类列表失败' 
       }
     }
   } catch (error: any) {
     console.error('获取分类列表失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，获取分类列表失败' 
+      msg: error.response.msg || '网络错误，获取分类列表失败' 
     }
   }
 }
@@ -37,22 +37,22 @@ export const $updateCategoryStatus = async (id: number, status: number) => {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '操作成功' 
+        msg: response.msg || '操作成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '操作失败' 
+        msg: response.msg || '操作失败' 
       }
     }
   } catch (error: any) {
     console.error('启用/禁用分类失败:', error)
-    const errorMessage = error.response?.data?.message || 
-                        error.message || 
+    const errormsg = error.response.msg || 
+                        error.msg || 
                         '网络错误，操作失败'
     return { 
       code: 0, 
-      message: errorMessage 
+      msg: errormsg 
     }
   }
 }
@@ -67,19 +67,19 @@ export const $addCategory = async (categoryData: {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '新增分类成功' 
+        msg: response.msg || '新增分类成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '新增分类失败' 
+        msg: response.msg || '新增分类失败' 
       }
     }
   } catch (error: any) {
     console.error('新增分类失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，新增分类失败' 
+      msg: error.response.msg || '网络错误，新增分类失败' 
     }
   }
 }
@@ -102,19 +102,19 @@ export const $updateCategory = async (id: number, categoryData: {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '更新分类成功' 
+        msg: response.msg || '更新分类成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '更新分类失败' 
+        msg: response.msg || '更新分类失败' 
       }
     }
   } catch (error: any) {
     console.error('更新分类失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '更新分类失败' 
+      msg: error.response.msg || '更新分类失败' 
     }
   }
 }
@@ -126,19 +126,19 @@ export const $deleteCategory = async (id: number) => {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '删除分类成功' 
+        msg: response.msg || '删除分类成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '删除分类失败' 
+        msg: response.data.msg || '删除分类失败' 
       }
     }
   } catch (error: any) {
     console.error('删除分类失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '删除分类失败' 
+      msg: error.response.msg || '删除分类失败' 
     }
   }
 }

@@ -126,7 +126,7 @@
                   size="small"
                   :icon="Edit"
                   @click="handleEdit(scope.row)"
-                  :disabled="scope.row.username === 'admin'"
+                  :disabled="!canOperate(scope.row)"
                 >
                   修改
                 </el-button>
@@ -139,7 +139,7 @@
                   size="small"
                   :icon="Remove"
                   @click="handleStatusChange(scope.row.id, 0)"
-                  :disabled="scope.row.username === 'admin'"
+                  :disabled="!canOperate(scope.row)"
                 >
                   禁用
                 </el-button>
@@ -150,7 +150,7 @@
                   size="small"
                   :icon="Check"
                   @click="handleStatusChange(scope.row.id, 1)"
-                  :disabled="scope.row.username === 'admin'"
+                  :disabled="!canOperate(scope.row)"
                 >
                   启用
                 </el-button>
@@ -255,6 +255,7 @@ import {
   $getEmployeeById,
   $updateEmployee
 } from '../../api/employee'
+import { useAuthStore } from '../../store/user'
 
 // 搜索表单
 const searchForm = reactive({
@@ -398,6 +399,13 @@ const handleSizeChange = (size: number) => {
 const handleCurrentChange = (page: number) => {
   pagination.current = page
   fetchEmployeeList()
+}
+
+//操作权限判断
+const canOperate = (row: any) => {
+  const authStore = useAuthStore()
+  const currentUsername = authStore.getUsername
+  return currentUsername === row.username || currentUsername === 'admin'
 }
 
 // 启用/禁用员工

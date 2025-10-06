@@ -30,7 +30,7 @@ export const $login = async (data: any) => {
     } else {
       // 处理其他类型的失败
       ElMessage({
-        message: response.message || '登录失败',
+        message: response.msg || '登录失败',
         type: 'error',
       })
       return { code: 0 }
@@ -41,8 +41,8 @@ export const $login = async (data: any) => {
     // 根据错误类型显示不同的消息
     let errorMessage = '登录失败'
     
-    if (error.response?.data?.message) {
-      const backendMessage = error.response.data.message
+    if (error.response?.data?.msg) {
+      const backendMessage = error.response.msg
       
       if (backendMessage.includes('ACCOUNT_LOCKED') || backendMessage.includes('账号被锁定')) {
         errorMessage = '账号已被锁定，请联系管理员'
@@ -73,7 +73,7 @@ export const $logout = async () => {
     if (response.code === 1) {
       return { code: 1, message: '退出成功' }
     } else {
-      return { code: 0, message: response.message || '退出失败' }
+      return { code: 0, message: response.msg || '退出失败' }
     }
   } catch (error) {
     console.error('退出登录接口调用失败:', error)
@@ -97,19 +97,19 @@ export const $updatePassword = async (passwordData: {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '密码修改成功' 
+        message: response.msg || '密码修改成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '密码修改失败' 
+        message: response.msg || '密码修改失败' 
       }
     }
   } catch (error: any) {
     console.error('修改密码接口调用失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，密码修改失败' 
+      message: error.response.msg || '网络错误，密码修改失败' 
     }
   }
 }
@@ -131,14 +131,14 @@ export const $getEmployeeList = async (params: {
     } else {
       return { 
         code: 0, 
-        message: response.message || '获取员工列表失败' 
+        message: response.msg || '获取员工列表失败' 
       }
     }
   } catch (error: any) {
     console.error('获取员工列表失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，获取员工列表失败' 
+      message: error.response?.msg || '网络错误，获取员工列表失败' 
     }
   }
 }
@@ -151,20 +151,18 @@ export const $updateEmployeeStatus = async (id: number, status: number) => {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '操作成功' 
+        message: response.msg || '操作成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '操作失败' 
+        message: response.msg || '操作失败' 
       }
     }
   } catch (error: any) {
     console.error('启用/禁用员工失败:', error)
     // 更详细的错误信息
-    const errorMessage = error.response?.data?.message || 
-                        error.message || 
-                        '网络错误，操作失败'
+    const errorMessage = error.response.msg      
     return { 
       code: 0, 
       message: errorMessage 
@@ -185,14 +183,14 @@ export const $getEmployeeById = async (id: number) => {
     } else {
       return { 
         code: 0, 
-        message: response.message || '获取员工信息失败' 
+        message: response.msg || '获取员工信息失败' 
       }
     }
   } catch (error: any) {
     console.error('获取员工信息失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，获取员工信息失败' 
+      message: error.response?.msg || '网络错误，获取员工信息失败' 
     }
   }
 }
@@ -218,19 +216,19 @@ export const $addEmployee = async (employeeData: {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '新增员工成功' 
+        message: response.msg || '新增员工成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '新增员工失败' 
+        message: response.msg || '新增员工失败' 
       }
     }
   } catch (error: any) {
     console.error('新增员工失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，新增员工失败' 
+      message: error.response.msg 
     }
   }
 }
@@ -257,19 +255,19 @@ export const $updateEmployee = async (id: number, employeeData: {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '更新员工成功' 
+        message: response.msg || '更新员工成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '更新员工失败' 
+        message: response.msg || '更新员工失败' 
       }
     }
   } catch (error: any) {
     console.error('更新员工失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '更新员工失败' 
+      message: error.response?.msg || '更新员工失败' 
     }
   }
 }

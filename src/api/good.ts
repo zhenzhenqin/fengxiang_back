@@ -15,19 +15,19 @@ export const $getGoodList = async (params: {
       return { 
         code: 1, 
         data: response.data,
-        message: '获取成功'
+        msg: '获取成功'
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '获取商品列表失败' 
+        msg: response.msg || '获取商品列表失败' 
       }
     }
   } catch (error: any) {
     console.error('获取商品列表失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，获取商品列表失败' 
+      msg: error.response?.data?.msg || '网络错误，获取商品列表失败' 
     }
   }
 }
@@ -39,22 +39,22 @@ export const $updateGoodStatus = async (id: number, status: number) => {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '操作成功' 
+        msg: response.msg || '操作成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '操作失败' 
+        msg: response.msg || '操作失败' 
       }
     }
   } catch (error: any) {
     console.error('启用/禁用商品失败:', error)
-    const errorMessage = error.response?.data?.message || 
-                        error.message || 
+    const errormsg = error.response?.data?.msg || 
+                        error.msg || 
                         '网络错误，操作失败'
     return { 
       code: 0, 
-      message: errorMessage 
+      msg: errormsg 
     }
   }
 }
@@ -72,19 +72,19 @@ export const $addGood = async (goodData: {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '新增商品成功' 
+        msg: response.msg || '新增商品成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '新增商品失败' 
+        msg: response.msg || '新增商品失败' 
       }
     }
   } catch (error: any) {
     console.error('新增商品失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，新增商品失败' 
+      msg: error.response?.data?.msg || '网络错误，新增商品失败' 
     }
   }
 }
@@ -109,19 +109,19 @@ export const $updateGood = async (id: number, goodData: {
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '更新商品成功' 
+        msg: response.msg || '更新商品成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '更新商品失败' 
+        msg: response.msg || '更新商品失败' 
       }
     }
   } catch (error: any) {
     console.error('更新商品失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '更新商品失败' 
+      msg: error.response?.data?.msg || '更新商品失败' 
     }
   }
 }
@@ -134,43 +134,47 @@ export const $getGoodById = async (id: number) => {
       return { 
         code: 1, 
         data: response.data,
-        message: '获取成功'
+        msg: '获取成功'
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '获取商品信息失败' 
+        msg: response.msg || '获取商品信息失败' 
       }
     }
   } catch (error: any) {
     console.error('获取商品信息失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，获取商品信息失败' 
+      msg: error.response?.data?.msg || '网络错误，获取商品信息失败' 
     }
   }
 }
 
 // 批量删除商品
+// 批量删除商品
+// 批量删除商品
 export const $deleteGoods = async (ids: number[]) => {
   try {
-    const response = await $delete('/dish', { ids })
+    // 使用 URL 查询参数方式传递 ids
+    const idsParam = ids.join(',');
+    const response = await $delete(`/dish?ids=${idsParam}`);
     if (response.code === 1) {
       return { 
         code: 1, 
-        message: response.message || '删除商品成功' 
+        msg: response.msg || '删除商品成功' 
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '删除商品失败' 
+        msg: response.msg || '删除商品失败' 
       }
     }
   } catch (error: any) {
     console.error('删除商品失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '删除商品失败' 
+      msg: error.response.msg || '删除商品失败' 
     }
   }
 }
@@ -183,19 +187,19 @@ export const $getGoodsByCategory = async (categoryId: number) => {
       return { 
         code: 1, 
         data: response.data,
-        message: '获取成功'
+        msg: '获取成功'
       }
     } else {
       return { 
         code: 0, 
-        message: response.message || '获取商品列表失败' 
+        msg: response.msg || '获取商品列表失败' 
       }
     }
   } catch (error: any) {
     console.error('获取商品列表失败:', error)
     return { 
       code: 0, 
-      message: error.response?.data?.message || '网络错误，获取商品列表失败' 
+      msg: error.response?.data?.msg || '网络错误，获取商品列表失败' 
     }
   }
 }

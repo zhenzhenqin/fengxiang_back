@@ -211,6 +211,7 @@
                   size="small"
                   :icon="Delete"
                   @click="handleDelete(scope.row.id, scope.row.name)"
+                 
                 >
                   删除
                 </el-button>
@@ -465,7 +466,7 @@ const fetchCategoryList = async () => {
     if (result.code === 1) {
       categoryList.value = result.data.records || []
     } else {
-      ElMessage.error(result.message || '获取分类列表失败')
+      ElMessage.error(result.msg || '获取分类列表失败')
     }
   } catch (error) {
     console.error('获取分类列表失败:', error)
@@ -515,7 +516,7 @@ const fetchGoodList = async (isScrollLoad = false) => {
         allData.value = goodsWithCategoryName
       }
     } else {
-      ElMessage.error(result.message || '获取商品列表失败')
+      ElMessage.error(result.msg || '获取商品列表失败')
       if (!isScrollLoad) {
         tableData.value = []
         total.value = 0
@@ -627,7 +628,7 @@ const handleStatusChange = async (id: number, status: number) => {
       ElMessage.success(`${action}成功`)
       fetchGoodList()
     } else {
-      ElMessage.error(result.message || `${action}失败`)
+      ElMessage.error(result.msg || `${action}失败`)
     }
   } catch (error: any) {
     if (error === 'cancel') {
@@ -662,7 +663,7 @@ const handleDelete = async (id: number, name: string) => {
       ElMessage.success('删除成功')
       fetchGoodList()
     } else {
-      ElMessage.error(result.message || '删除失败')
+      ElMessage.error(result.msg || '删除失败')
     }
   } catch (error: any) {
     if (error === 'cancel') {
@@ -705,7 +706,7 @@ const handleBatchDelete = async () => {
       selectedRows.value = []
       fetchGoodList()
     } else {
-      ElMessage.error(result.message || '批量删除失败')
+      ElMessage.error(result.msg || '批量删除失败')
     }
   } catch (error: any) {
     if (error === 'cancel') {
@@ -795,7 +796,7 @@ const handleEdit = async (row: any) => {
       })
       console.log('编辑商品数据加载成功:', addForm)
     } else {
-      ElMessage.error(result.message || '获取商品信息失败')
+      ElMessage.error(result.msg || '获取商品信息失败')
     }
   } catch (error) {
     console.error('获取商品信息失败:', error)
@@ -842,7 +843,7 @@ const handleSaveAndContinue = async () => {
       })
       fetchGoodList()
     } else {
-      ElMessage.error(result.message || '新增商品失败')
+      ElMessage.error(result.msg || '新增商品失败')
     }
   } catch (error) {
     // 表单验证失败
@@ -880,7 +881,7 @@ const handleAddSubmit = async () => {
         addDialogVisible.value = false
         fetchGoodList()
       } else {
-        ElMessage.error(result.message || '更新商品失败')
+        ElMessage.error(result.msg || '更新商品失败')
       }
     } else {
       // 新增模式
@@ -901,7 +902,7 @@ const handleAddSubmit = async () => {
         addDialogVisible.value = false
         fetchGoodList()
       } else {
-        ElMessage.error(result.message || '新增商品失败')
+        ElMessage.error(result.msg || '新增商品失败')
       }
     }
   } catch (error) {
