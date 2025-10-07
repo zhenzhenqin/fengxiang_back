@@ -131,7 +131,7 @@ export const $deleteCategory = async (id: number) => {
     } else {
       return { 
         code: 0, 
-        msg: response.data.msg || '删除分类失败' 
+        msg: response.msg || '删除分类失败' 
       }
     }
   } catch (error: any) {

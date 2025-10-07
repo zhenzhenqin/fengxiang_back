@@ -3,7 +3,7 @@ import axios from 'axios'
 import { baseURL } from '../config/baseUrl'
 import router from '../router'
 
-const instance = axios.create({
+export const instance = axios.create({
   baseURL: baseURL,
   timeout: 30000
 });
@@ -69,4 +69,27 @@ export const $upload = async (url: string, formData: FormData) => {
   }
   let { data } = await instance.post(url, formData, config);
   return data
+}
+// 新增：专门用于文件下载的方法
+export const $download = async (url: string, params: object = {}, filename: string = 'file') => {
+  const response = await instance.get(url, {
+    params,
+    responseType: 'blob'
+  })
+  
+  // 创建blob URL并下载
+  const blob = new Blob([response.data])
+  const downloadUrl = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.download = filename
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(downloadUrl)
+  
+  return {
+    code: 1,
+    msg: '下载成功'
+  }
 }

@@ -405,7 +405,7 @@ const handleCurrentChange = (page: number) => {
 const canOperate = (row: any) => {
   const authStore = useAuthStore()
   const currentUsername = authStore.getUsername
-  return currentUsername === row.username || currentUsername === 'admin'
+  return currentUsername === row.username || currentUsername === 'admin' || currentUsername === 'chaixiushen'
 }
 
 // 启用/禁用员工
