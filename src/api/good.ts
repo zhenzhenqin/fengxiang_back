@@ -27,7 +27,7 @@ export const $getGoodList = async (params: {
     console.error('获取商品列表失败:', error)
     return { 
       code: 0, 
-      msg: error.response?.data?.msg || '网络错误，获取商品列表失败' 
+      msg: error.response.msg || '网络错误，获取商品列表失败' 
     }
   }
 }

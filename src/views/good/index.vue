@@ -356,6 +356,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted, nextTick, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox, type FormInstance, type FormRules, type UploadProps } from 'element-plus'
 import {
   Search,
@@ -914,11 +915,20 @@ const handleAddSubmit = async () => {
   }
 }
 
+const router = useRouter()
+
 // 初始化
 onMounted(() => {
   fetchCategoryList()
   fetchGoodList()
   window.addEventListener('scroll', handleWindowScroll) //监听滚动事件
+
+  // 检查是否需要自动打开新增商品对话框
+  if (router.currentRoute.value.query.openAddDialog === 'true') {
+    nextTick(() => {
+      handleAdd() // 自动打开新增商品对话框
+    })
+  }
 })
 
 // 在组件卸载时移除滚动监听
